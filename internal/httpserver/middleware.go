@@ -22,6 +22,13 @@ import (
 
 type middleware func(http.Handler) http.Handler
 
+func setSecurityHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func applyMiddleware(handler http.Handler, middlewareChain ...middleware) http.Handler {
 	for _, currentMiddleware := range slices.Backward(middlewareChain) {
 		handler = currentMiddleware(handler)
